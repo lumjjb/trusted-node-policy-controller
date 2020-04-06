@@ -112,7 +112,7 @@ coverage:
 ############################################################
 
 build:
-	@common/scripts/gobuild.sh build/_output/bin/multicloud-operators-policy-controller ./cmd/manager
+	@common/scripts/gobuild.sh build/_output/bin/trusted-node-policy-controller ./cmd/manager
 
 
 ############################################################

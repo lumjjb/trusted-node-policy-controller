@@ -104,7 +104,7 @@ func main() {
 
 	ctx := context.TODO()
 	// Become the leader before proceeding
-	err = leader.Become(ctx, "multicloud-operators-policy-controller-lock")
+	err = leader.Become(ctx, "trusted-node-policy-controller-lock")
 	if err != nil {
 		log.Error(err, "")
 		os.Exit(1)
