@@ -3,11 +3,13 @@ module github.com/lumjjb/trusted-node-policy-controller
 require (
 	github.com/go-openapi/spec v0.17.2
 	github.com/golang/glog v0.0.0-20160126235308-23def4e6c14b
+	github.com/imsky/junit-merger v0.1.1 // indirect
 	github.com/jstemmer/go-junit-report v0.9.1 // indirect
 	github.com/onsi/gomega v1.5.0
 	github.com/operator-framework/operator-sdk v0.11.1-0.20191021213754-e7135197e816
 	github.com/spf13/pflag v1.0.3
 	github.com/stretchr/testify v1.3.0
+	github.com/wadey/gocovmerge v0.0.0-20160331181800-b5bfa59ec0ad // indirect
 	golang.org/x/net v0.0.0-20190522155817-f3200d17e092
 	k8s.io/api v0.0.0-20190918155943-95b840bb6a1f
 	k8s.io/apimachinery v0.0.0-20190913080033-27d36303b655
