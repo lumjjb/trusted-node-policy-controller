@@ -24,8 +24,8 @@ import (
 	"k8s.io/client-go/rest"
 	"sigs.k8s.io/controller-runtime/pkg/envtest"
 
-	"github.com/IBM/multicloud-operators-policy-controller/pkg/apis"
-	policiesv1alpha1 "github.com/IBM/multicloud-operators-policy-controller/pkg/apis/policies/v1alpha1"
+	"github.com/lumjjb/trusted-node-policy-controller/pkg/apis"
+	policiesv1alpha1 "github.com/lumjjb/trusted-node-policy-controller/pkg/apis/policies/v1alpha1"
 )
 
 var cfg *rest.Config

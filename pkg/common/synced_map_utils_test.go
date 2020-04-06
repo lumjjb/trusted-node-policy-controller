@@ -21,7 +21,7 @@ import (
 
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
-	policiesv1alpha1 "github.com/IBM/multicloud-operators-policy-controller/pkg/apis/policies/v1alpha1"
+	policiesv1alpha1 "github.com/lumjjb/trusted-node-policy-controller/pkg/apis/policies/v1alpha1"
 )
 
 /*

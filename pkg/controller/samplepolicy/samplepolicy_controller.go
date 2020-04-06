@@ -37,8 +37,8 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 	"sigs.k8s.io/controller-runtime/pkg/source"
 
-	policiesv1alpha1 "github.com/IBM/multicloud-operators-policy-controller/pkg/apis/policies/v1alpha1"
-	"github.com/IBM/multicloud-operators-policy-controller/pkg/common"
+	policiesv1alpha1 "github.com/lumjjb/trusted-node-policy-controller/pkg/apis/policies/v1alpha1"
+	"github.com/lumjjb/trusted-node-policy-controller/pkg/common"
 	//testclient "k8s.io/client-go/kubernetes/fake"
 )
 
