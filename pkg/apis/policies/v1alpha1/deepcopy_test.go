@@ -21,13 +21,13 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
-var samplePolicy = SamplePolicy{
+var samplePolicy = TrustedNodePolicy{
 	ObjectMeta: metav1.ObjectMeta{
 		Name:      "foo",
 		Namespace: "default",
 	}}
 
-var samplePolicySpec = SamplePolicySpec{
+var samplePolicySpec = TrustedNodePolicySpec{
 	Severity:                        "high",
 	RemediationAction:               "enforce",
 	MaxRoleBindingUsersPerNamespace: 1,
@@ -48,7 +48,7 @@ var listMeta = metav1.ListMeta{
 	Continue: "continue",
 }
 
-var items = []SamplePolicy{}
+var items = []TrustedNodePolicy{}
 
 func TestPolicyDeepCopyInto(t *testing.T) {
 	policy := Policy{
@@ -79,14 +79,14 @@ func TestPolicyDeepCopy(t *testing.T) {
 	assert.True(t, reflect.DeepEqual(policy, *policy2))
 }
 
-func TestSamplePolicyDeepCopyInto(t *testing.T) {
-	policy2 := SamplePolicy{}
+func TestTrustedNodePolicyDeepCopyInto(t *testing.T) {
+	policy2 := TrustedNodePolicy{}
 	samplePolicy.DeepCopyInto(&policy2)
 	assert.True(t, reflect.DeepEqual(samplePolicy, policy2))
 }
 
-func TestSamplePolicyDeepCopy(t *testing.T) {
-	policy := SamplePolicy{
+func TestTrustedNodePolicyDeepCopy(t *testing.T) {
+	policy := TrustedNodePolicy{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "foo",
 			Namespace: "default",
@@ -95,20 +95,20 @@ func TestSamplePolicyDeepCopy(t *testing.T) {
 	assert.True(t, reflect.DeepEqual(policy, *policy2))
 }
 
-func TestSamplePolicySpecDeepCopyInto(t *testing.T) {
-	policySpec2 := SamplePolicySpec{}
+func TestTrustedNodePolicySpecDeepCopyInto(t *testing.T) {
+	policySpec2 := TrustedNodePolicySpec{}
 	samplePolicySpec.DeepCopyInto(&policySpec2)
 	assert.True(t, reflect.DeepEqual(samplePolicySpec, policySpec2))
 }
 
-func TestSamplePolicySpecDeepCopy(t *testing.T) {
+func TestTrustedNodePolicySpecDeepCopy(t *testing.T) {
 	policySpec2 := samplePolicySpec.DeepCopy()
 	assert.True(t, reflect.DeepEqual(samplePolicySpec, *policySpec2))
 }
 
-func TestSamplePolicyListDeepCopy(t *testing.T) {
+func TestTrustedNodePolicyListDeepCopy(t *testing.T) {
 	items = append(items, samplePolicy)
-	samplePolicyList := SamplePolicyList{
+	samplePolicyList := TrustedNodePolicyList{
 		TypeMeta: typeMeta,
 		ListMeta: listMeta,
 		Items:    items,
@@ -117,19 +117,19 @@ func TestSamplePolicyListDeepCopy(t *testing.T) {
 	assert.True(t, reflect.DeepEqual(samplePolicyList, *samplePolicyList2))
 }
 
-func TestSamplePolicyListDeepCopyInto(t *testing.T) {
+func TestTrustedNodePolicyListDeepCopyInto(t *testing.T) {
 	items = append(items, samplePolicy)
-	samplePolicyList := SamplePolicyList{
+	samplePolicyList := TrustedNodePolicyList{
 		TypeMeta: typeMeta,
 		ListMeta: listMeta,
 		Items:    items,
 	}
-	samplePolicyList2 := SamplePolicyList{}
+	samplePolicyList2 := TrustedNodePolicyList{}
 	samplePolicyList.DeepCopyInto(&samplePolicyList2)
 	assert.True(t, reflect.DeepEqual(samplePolicyList, samplePolicyList2))
 }
 
-func TestSamplePolicyStatusDeepCopy(t *testing.T) {
+func TestTrustedNodePolicyStatusDeepCopy(t *testing.T) {
 	var compliantDetail = map[string][]string{}
 	var compliantDetails = map[string]map[string][]string{}
 	details := []string{}
@@ -140,7 +140,7 @@ func TestSamplePolicyStatusDeepCopy(t *testing.T) {
 	compliantDetails["a"] = compliantDetail
 	compliantDetails["b"] = compliantDetail
 	compliantDetails["c"] = compliantDetail
-	samplePolicyStatus := SamplePolicyStatus{
+	samplePolicyStatus := TrustedNodePolicyStatus{
 		ComplianceState:   "Compliant",
 		CompliancyDetails: compliantDetails,
 	}
@@ -148,7 +148,7 @@ func TestSamplePolicyStatusDeepCopy(t *testing.T) {
 	assert.True(t, reflect.DeepEqual(samplePolicyStatus, *samplePolicyStatus2))
 }
 
-func TestSamplePolicyStatusDeepCopyInto(t *testing.T) {
+func TestTrustedNodePolicyStatusDeepCopyInto(t *testing.T) {
 	var compliantDetail = map[string][]string{}
 	var compliantDetails = map[string]map[string][]string{}
 	details := []string{}
@@ -159,11 +159,11 @@ func TestSamplePolicyStatusDeepCopyInto(t *testing.T) {
 	compliantDetails["a"] = compliantDetail
 	compliantDetails["b"] = compliantDetail
 	compliantDetails["c"] = compliantDetail
-	samplePolicyStatus := SamplePolicyStatus{
+	samplePolicyStatus := TrustedNodePolicyStatus{
 		ComplianceState:   "Compliant",
 		CompliancyDetails: compliantDetails,
 	}
-	var samplePolicyStatus2 SamplePolicyStatus
+	var samplePolicyStatus2 TrustedNodePolicyStatus
 	samplePolicyStatus.DeepCopyInto(&samplePolicyStatus2)
 	assert.True(t, reflect.DeepEqual(samplePolicyStatus, samplePolicyStatus2))
 }

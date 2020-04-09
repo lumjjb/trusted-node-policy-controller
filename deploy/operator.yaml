@@ -1,24 +1,24 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: multicloud-operators-policy-controller
+  name: trusted-node-policy-controller
 spec:
   replicas: 1
   selector:
     matchLabels:
-      name: multicloud-operators-policy-controller
+      name: trusted-node-policy-controller
   template:
     metadata:
       labels:
-        name: multicloud-operators-policy-controller
+        name: trusted-node-policy-controller
     spec:
-      serviceAccountName: multicloud-operators-policy-controller
+      serviceAccountName: trusted-node-policy-controller
       containers:
-        - name: multicloud-operators-policy-controller
+        - name: trusted-node-policy-controller
           # Replace this with the built image name
-          image: ibm/multicloud-operators-policy-controller
+          image: lumjjb/trusted-node-policy-controller
           command:
-          - multicloud-operators-policy-controller
+          - trusted-node-policy-controller
           imagePullPolicy: Always
           env:
             - name: WATCH_NAMESPACE
@@ -28,4 +28,4 @@ spec:
                 fieldRef:
                   fieldPath: metadata.name
             - name: OPERATOR_NAME
-              value: "multicloud-operators-policy-controller"
+              value: "trusted-node-policy-controller"

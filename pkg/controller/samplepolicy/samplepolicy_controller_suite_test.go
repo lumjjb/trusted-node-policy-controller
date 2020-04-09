@@ -30,7 +30,7 @@ import (
 
 var cfg *rest.Config
 
-var samplePolicy = policiesv1alpha1.SamplePolicy{
+var samplePolicy = policiesv1alpha1.TrustedNodePolicy{
 	ObjectMeta: metav1.ObjectMeta{
 		Name:      "foo",
 		Namespace: "default",

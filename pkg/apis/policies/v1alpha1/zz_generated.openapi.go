@@ -24,17 +24,17 @@ import (
 
 func GetOpenAPIDefinitions(ref common.ReferenceCallback) map[string]common.OpenAPIDefinition {
 	return map[string]common.OpenAPIDefinition{
-		"github.com/lumjjb/trusted-node-policy-controller/pkg/apis/policies/v1alpha1.SamplePolicy":       schema_pkg_apis_policies_v1alpha1_SamplePolicy(ref),
-		"github.com/lumjjb/trusted-node-policy-controller/pkg/apis/policies/v1alpha1.SamplePolicySpec":   schema_pkg_apis_policies_v1alpha1_SamplePolicySpec(ref),
-		"github.com/lumjjb/trusted-node-policy-controller/pkg/apis/policies/v1alpha1.SamplePolicyStatus": schema_pkg_apis_policies_v1alpha1_SamplePolicyStatus(ref),
+		"github.com/lumjjb/trusted-node-policy-controller/pkg/apis/policies/v1alpha1.TrustedNodePolicy":       schema_pkg_apis_policies_v1alpha1_TrustedNodePolicy(ref),
+		"github.com/lumjjb/trusted-node-policy-controller/pkg/apis/policies/v1alpha1.TrustedNodePolicySpec":   schema_pkg_apis_policies_v1alpha1_TrustedNodePolicySpec(ref),
+		"github.com/lumjjb/trusted-node-policy-controller/pkg/apis/policies/v1alpha1.TrustedNodePolicyStatus": schema_pkg_apis_policies_v1alpha1_TrustedNodePolicyStatus(ref),
 	}
 }
 
-func schema_pkg_apis_policies_v1alpha1_SamplePolicy(ref common.ReferenceCallback) common.OpenAPIDefinition {
+func schema_pkg_apis_policies_v1alpha1_TrustedNodePolicy(ref common.ReferenceCallback) common.OpenAPIDefinition {
 	return common.OpenAPIDefinition{
 		Schema: spec.Schema{
 			SchemaProps: spec.SchemaProps{
-				Description: "SamplePolicy is the Schema for the samplepolicies API",
+				Description: "TrustedNodePolicy is the Schema for the samplepolicies API",
 				Type:        []string{"object"},
 				Properties: map[string]spec.Schema{
 					"kind": {
@@ -58,27 +58,27 @@ func schema_pkg_apis_policies_v1alpha1_SamplePolicy(ref common.ReferenceCallback
 					},
 					"spec": {
 						SchemaProps: spec.SchemaProps{
-							Ref: ref("github.com/lumjjb/trusted-node-policy-controller/pkg/apis/policies/v1alpha1.SamplePolicySpec"),
+							Ref: ref("github.com/lumjjb/trusted-node-policy-controller/pkg/apis/policies/v1alpha1.TrustedNodePolicySpec"),
 						},
 					},
 					"status": {
 						SchemaProps: spec.SchemaProps{
-							Ref: ref("github.com/lumjjb/trusted-node-policy-controller/pkg/apis/policies/v1alpha1.SamplePolicyStatus"),
+							Ref: ref("github.com/lumjjb/trusted-node-policy-controller/pkg/apis/policies/v1alpha1.TrustedNodePolicyStatus"),
 						},
 					},
 				},
 			},
 		},
 		Dependencies: []string{
-			"github.com/lumjjb/trusted-node-policy-controller/pkg/apis/policies/v1alpha1.SamplePolicySpec", "github.com/lumjjb/trusted-node-policy-controller/pkg/apis/policies/v1alpha1.SamplePolicyStatus", "k8s.io/apimachinery/pkg/apis/meta/v1.ObjectMeta"},
+			"github.com/lumjjb/trusted-node-policy-controller/pkg/apis/policies/v1alpha1.TrustedNodePolicySpec", "github.com/lumjjb/trusted-node-policy-controller/pkg/apis/policies/v1alpha1.TrustedNodePolicyStatus", "k8s.io/apimachinery/pkg/apis/meta/v1.ObjectMeta"},
 	}
 }
 
-func schema_pkg_apis_policies_v1alpha1_SamplePolicySpec(ref common.ReferenceCallback) common.OpenAPIDefinition {
+func schema_pkg_apis_policies_v1alpha1_TrustedNodePolicySpec(ref common.ReferenceCallback) common.OpenAPIDefinition {
 	return common.OpenAPIDefinition{
 		Schema: spec.Schema{
 			SchemaProps: spec.SchemaProps{
-				Description: "SamplePolicySpec defines the desired state of SamplePolicy",
+				Description: "TrustedNodePolicySpec defines the desired state of TrustedNodePolicy",
 				Type:        []string{"object"},
 				Properties: map[string]spec.Schema{
 					"severity": {
@@ -147,11 +147,11 @@ func schema_pkg_apis_policies_v1alpha1_SamplePolicySpec(ref common.ReferenceCall
 	}
 }
 
-func schema_pkg_apis_policies_v1alpha1_SamplePolicyStatus(ref common.ReferenceCallback) common.OpenAPIDefinition {
+func schema_pkg_apis_policies_v1alpha1_TrustedNodePolicyStatus(ref common.ReferenceCallback) common.OpenAPIDefinition {
 	return common.OpenAPIDefinition{
 		Schema: spec.Schema{
 			SchemaProps: spec.SchemaProps{
-				Description: "SamplePolicyStatus defines the observed state of SamplePolicy",
+				Description: "TrustedNodePolicyStatus defines the observed state of TrustedNodePolicy",
 				Type:        []string{"object"},
 				Properties: map[string]spec.Schema{
 					"compliant": {

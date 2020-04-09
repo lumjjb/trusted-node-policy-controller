@@ -29,12 +29,12 @@ kubectl apply -f deploy/crds/policies.ibm.com_v1alpha1_samplepolicy_cr.yaml -n d
 ```
 The local process outputs the following messages
 ```
-{"level":"info","ts":1572447165.453119,"logger":"controller_samplepolicy","msg":"Reconciling SamplePolicy","Request.Namespace":"default","Request.Name":"example-samplepolicy"}
+{"level":"info","ts":1572447165.453119,"logger":"controller_samplepolicy","msg":"Reconciling TrustedNodePolicy","Request.Namespace":"default","Request.Name":"example-samplepolicy"}
 Available policies in namespaces:
 namespace = kube-public; policy = example-samplepolicy
 namespace = default; policy = example-samplepolicy
 ```
-Check the sample policy resource using `kubectl describe SamplePolicy example-samplepolicy -n default`. The policy controller checks the cluster and reports the compliancy status in the policy.  The status field in the policy is updated with  the compliant status, for example-
+Check the sample policy resource using `kubectl describe TrustedNodePolicy example-samplepolicy -n default`. The policy controller checks the cluster and reports the compliancy status in the policy.  The status field in the policy is updated with  the compliant status, for example-
 ```
 Status:
   Compliancy Details:
@@ -61,7 +61,7 @@ operator-sdk build ibm/multicloud-operators-policy-controller:latest
 
 ```bash
 # replace `TestPolicy` with the name you want
-for file in $(find . -name "*.go" -type f); do  sed -i "" "s/SamplePolicy/TestPolicy/g" $file; done
+for file in $(find . -name "*.go" -type f); do  sed -i "" "s/TrustedNodePolicy/TestPolicy/g" $file; done
 ```
 ### Change CRD
 
@@ -71,8 +71,8 @@ Change below section to match the kind you specified in previous step.
 
 ```yaml
 names:
-  kind: SamplePolicy
-  listKind: SamplePolicyList
+  kind: TrustedNodePolicy
+  listKind: TrustedNodePolicyList
   plural: samplepolicies
   singular: samplepolicy
 ```
@@ -84,7 +84,7 @@ A sample CR is located at: [deploy/crds/policies.ibm.com_v1alpha1_samplepolicy_c
 Change below section to match the kind you specified in previous step.
 
 ```yaml
-kind: SamplePolicy
+kind: TrustedNodePolicy
 ```
 
 ### Test new CRD and CR
