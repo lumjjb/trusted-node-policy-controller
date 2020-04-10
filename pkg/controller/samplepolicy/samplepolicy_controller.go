@@ -16,7 +16,8 @@ package samplepolicy
 import (
 	"context"
 	"fmt"
-	"reflect"
+
+	//"reflect"
 	"strings"
 	"time"
 
@@ -93,7 +94,7 @@ func add(mgr manager.Manager, r reconcile.Reconciler) error {
 		return err
 	}
 	// Watch for changes to secondary resource Pods and requeue the owner TrustedNodePolicy
-	err = c.Watch(&source.Kind{Type: &corev1.Pod{}}, &handler.EnqueueRequestForOwner{
+	err = c.Watch(&source.Kind{Type: &corev1.Node{}}, &handler.EnqueueRequestForOwner{
 		IsController: true,
 		OwnerType:    &policiesv1alpha1.TrustedNodePolicy{},
 	})
@@ -208,6 +209,7 @@ func (r *ReconcileTrustedNodePolicy) Reconcile(request reconcile.Request) (recon
 func PeriodicallyExecSamplePolicies(freq uint) {
 	var plcToUpdateMap map[string]*policiesv1alpha1.TrustedNodePolicy
 	for {
+        var removeNodes []corev1.Node
 		fmt.Println("LUMJJB Start loop")
 		start := time.Now()
 		printMap(availablePolicies.PolicyMap)
@@ -219,7 +221,7 @@ func PeriodicallyExecSamplePolicies(freq uint) {
 			//no difference between enforce and inform here
 			// XXX(LUMJJB): Get node list
 			nodeList, err := (*common.KubeClient).CoreV1().Nodes().
-                List(metav1.ListOptions{LabelSelector: "trusted=false"})
+				List(metav1.ListOptions{LabelSelector: "trusted=false"})
 			if err != nil {
 				glog.Errorf("reason: communication error, subject: k8s API server, namespace: %v, according to policy: %v, additional-info: %v\n",
 					namespace, policy.Name, err)
@@ -231,14 +233,15 @@ func PeriodicallyExecSamplePolicies(freq uint) {
 			fmt.Printf("Node violations: %s\n", nodeViolations)
 
 			if strings.EqualFold(string(policy.Spec.RemediationAction), string(policiesv1alpha1.Enforce)) {
-				glog.V(5).Infof("Enforce is set, but ignored :-)")
+				if addEnforcement(policy, nodeViolations, namespace) {
+                    plcToUpdateMap[policy.Name] = policy
+                    removeNodes = append(removeNodes, nodeList.Items...)
+                }
+			} else {
+				if addViolationIfExists(policy, nodeViolations, namespace) {
+					plcToUpdateMap[policy.Name] = policy
+				}
 			}
-
-			// XXX(LUMJJB): Add violation message and update policy, this if statement has side effects no policy
-			if addViolation(policy, nodeViolations, namespace) {
-				plcToUpdateMap[policy.Name] = policy
-			}
-			checkComplianceBasedOnDetails(policy)
 		}
 
 		//update status of all policies that changed:
@@ -246,6 +249,15 @@ func PeriodicallyExecSamplePolicies(freq uint) {
 		if err != nil {
 			glog.Errorf("reason: policy update error, subject: policy/%v, namespace: %v, according to policy: %v, additional-info: %v\n",
 				faultyPlc.Name, faultyPlc.Namespace, faultyPlc.Name, err)
+		}
+
+		// Do enforcement
+		for _, n := range removeNodes {
+			n.Labels["trusted"] = "removed"
+			_, err := (*common.KubeClient).CoreV1().Nodes().Update(&n)
+			if err != nil {
+                glog.Errorf("Unable to update node %v: %v", n.Name, err)
+			}
 		}
 
 		// making sure that if processing is > freq we don't sleep
@@ -305,19 +317,18 @@ func convertMaptoPolicyNameKey() map[string]*policiesv1alpha1.TrustedNodePolicy 
 }
 
 func checkViolations(nodeList *corev1.NodeList, plc *policiesv1alpha1.TrustedNodePolicy) []string {
-    nodes := []string{}
-    for _, n := range nodeList.Items {
-        nodes = append(nodes, n.Name)
-    }
+	nodes := []string{}
+	for _, n := range nodeList.Items {
+		nodes = append(nodes, n.Name)
+	}
 	return nodes
 }
 
-func addViolation(plc *policiesv1alpha1.TrustedNodePolicy, nodeViolations []string, namespace string) bool {
-	changed := false
-	msg := fmt.Sprintf("%s violations detected, nodes are: %v",
-		len(nodeViolations),
-		nodeViolations)
-    fmt.Println(msg)
+func addEnforcement(plc *policiesv1alpha1.TrustedNodePolicy, nodeViolations []string, namespace string) bool {
+
+    if len(nodeViolations) == 0 {
+        return false
+    }
 
 	if plc.Status.CompliancyDetails == nil {
 		plc.Status.CompliancyDetails = make(map[string]map[string][]string)
@@ -329,52 +340,17 @@ func addViolation(plc *policiesv1alpha1.TrustedNodePolicy, nodeViolations []stri
 		plc.Status.CompliancyDetails[plc.Name][namespace] = []string{}
 	}
 	if len(plc.Status.CompliancyDetails[plc.Name][namespace]) == 0 {
-		plc.Status.CompliancyDetails[plc.Name][namespace] = []string{msg}
-		changed = true
-		return changed
-	}
-	/*
-		    firstNum := strings.Split(plc.Status.CompliancyDetails[plc.Name][namespace][0], " ")
-			if len(firstNum) > 0 {
-				if firstNum[0] == fmt.Sprint(len(nodeViolations)) {
-					return false
-				}
-			}
-	*/
-	if plc.Status.CompliancyDetails[plc.Name][namespace][0] == msg {
-		return false
+		plc.Status.CompliancyDetails[plc.Name][namespace] = []string{""}
 	}
 
-	plc.Status.CompliancyDetails[plc.Name][namespace][0] = msg
-	changed = true
-	return changed
+    plc.Status.ComplianceState = policiesv1alpha1.Compliant
+    msg := fmt.Sprintf("Compliant after removing untrusted nodes: %v", nodeViolations)
+    plc.Status.CompliancyDetails[plc.Name][namespace][0] = msg
+    fmt.Println(msg)
+    return true
 }
 
-func checkComplianceBasedOnDetails(plc *policiesv1alpha1.TrustedNodePolicy) {
-	plc.Status.ComplianceState = policiesv1alpha1.Compliant
-	if plc.Status.CompliancyDetails == nil {
-		return
-	}
-	if _, ok := plc.Status.CompliancyDetails[plc.Name]; !ok {
-		return
-	}
-	if len(plc.Status.CompliancyDetails[plc.Name]) == 0 {
-		return
-	}
-	for namespace, msgList := range plc.Status.CompliancyDetails[plc.Name] {
-		if len(msgList) > 0 {
-			violationNum := strings.Split(plc.Status.CompliancyDetails[plc.Name][namespace][0], " ")
-			if len(violationNum) > 0 {
-				if violationNum[0] != fmt.Sprint(0) {
-					plc.Status.ComplianceState = policiesv1alpha1.NonCompliant
-				}
-			}
-		} else {
-			return
-		}
-	}
-}
-
+/*
 func checkComplianceChangeBasedOnDetails(plc *policiesv1alpha1.TrustedNodePolicy) (complianceChanged bool) {
 	//used in case we also want to know not just the compliance state, but also whether the compliance changed or not.
 	previous := plc.Status.ComplianceState
@@ -408,6 +384,85 @@ func checkComplianceChangeBasedOnDetails(plc *policiesv1alpha1.TrustedNodePolicy
 	}
 	return reflect.DeepEqual(previous, plc.Status.ComplianceState)
 }
+*/
+
+func addViolationIfExists(plc *policiesv1alpha1.TrustedNodePolicy, nodeViolations []string, namespace string) bool {
+	if plc.Status.CompliancyDetails == nil {
+		plc.Status.CompliancyDetails = make(map[string]map[string][]string)
+	}
+	if _, ok := plc.Status.CompliancyDetails[plc.Name]; !ok {
+		plc.Status.CompliancyDetails[plc.Name] = make(map[string][]string)
+	}
+	if plc.Status.CompliancyDetails[plc.Name][namespace] == nil {
+		plc.Status.CompliancyDetails[plc.Name][namespace] = []string{}
+	}
+	if len(plc.Status.CompliancyDetails[plc.Name][namespace]) == 0 {
+		plc.Status.CompliancyDetails[plc.Name][namespace] = []string{""}
+	}
+
+	if len(nodeViolations) > 0 {
+		plc.Status.ComplianceState = policiesv1alpha1.NonCompliant
+		msg := fmt.Sprintf("%d violations detected, nodes are: %v",
+			len(nodeViolations),
+			nodeViolations)
+		if plc.Status.CompliancyDetails[plc.Name][namespace][0] == msg {
+			return false
+		}
+
+		plc.Status.CompliancyDetails[plc.Name][namespace][0] = msg
+		fmt.Println(msg)
+		return true
+
+	} else {
+		// Case where it was compliant and still compliant, preserve message
+		if plc.Status.ComplianceState == policiesv1alpha1.Compliant {
+			// preserve message
+			return false
+		}
+
+		msg := "All nodes are trusted"
+		plc.Status.ComplianceState = policiesv1alpha1.Compliant
+		plc.Status.CompliancyDetails[plc.Name][namespace][0] = msg
+		fmt.Println(msg)
+		return true
+	}
+}
+
+/*
+func checkComplianceChangeBasedOnDetails(plc *policiesv1alpha1.TrustedNodePolicy) (complianceChanged bool) {
+	//used in case we also want to know not just the compliance state, but also whether the compliance changed or not.
+	previous := plc.Status.ComplianceState
+	if plc.Status.CompliancyDetails == nil {
+		plc.Status.ComplianceState = policiesv1alpha1.UnknownCompliancy
+		return reflect.DeepEqual(previous, plc.Status.ComplianceState)
+	}
+	if _, ok := plc.Status.CompliancyDetails[plc.Name]; !ok {
+		plc.Status.ComplianceState = policiesv1alpha1.UnknownCompliancy
+		return reflect.DeepEqual(previous, plc.Status.ComplianceState)
+	}
+	if len(plc.Status.CompliancyDetails[plc.Name]) == 0 {
+		plc.Status.ComplianceState = policiesv1alpha1.UnknownCompliancy
+		return reflect.DeepEqual(previous, plc.Status.ComplianceState)
+	}
+	plc.Status.ComplianceState = policiesv1alpha1.Compliant
+	for namespace, msgList := range plc.Status.CompliancyDetails[plc.Name] {
+		if len(msgList) > 0 {
+			violationNum := strings.Split(plc.Status.CompliancyDetails[plc.Name][namespace][0], " ")
+			if len(violationNum) > 0 {
+				if violationNum[0] != fmt.Sprint(0) {
+					plc.Status.ComplianceState = policiesv1alpha1.NonCompliant
+				}
+			}
+		} else {
+			return reflect.DeepEqual(previous, plc.Status.ComplianceState)
+		}
+	}
+	if plc.Status.ComplianceState != policiesv1alpha1.NonCompliant {
+		plc.Status.ComplianceState = policiesv1alpha1.Compliant
+	}
+	return reflect.DeepEqual(previous, plc.Status.ComplianceState)
+}
+*/
 
 func updatePolicyStatus(policies map[string]*policiesv1alpha1.TrustedNodePolicy) (*policiesv1alpha1.TrustedNodePolicy, error) {
 	for _, instance := range policies { // policies is a map where: key = plc.Name, value = pointer to plc

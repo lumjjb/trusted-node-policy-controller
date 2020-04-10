@@ -32,8 +32,18 @@ rules:
     - ""
     resources:
     - namespaces
+    verbs:
+    - get
+    - list
+    - watch
+  - apiGroups:
+    - ""
+    resources:
     - nodes
     verbs:
     - get
     - list
     - watch
+    - update
+    - delete
+    - patch

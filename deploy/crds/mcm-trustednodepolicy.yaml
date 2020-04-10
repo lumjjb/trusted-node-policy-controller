@@ -1,0 +1,41 @@
+apiVersion: policy.mcm.ibm.com/v1alpha1
+kind: Policy
+metadata:
+  name: policy-trustednode
+  namespace: default
+  annotations:
+    policy.mcm.ibm.com/standards: NIST-CSF
+    policy.mcm.ibm.com/categories: PR.PT Protective Technology
+    policy.mcm.ibm.com/controls: PR.PT-3 Least Functionality
+spec:
+  complianceType: musthave
+  remediationAction: inform
+  disabled: false
+  namespaces:
+    include: ["default"]
+  policy-templates:
+    - complianceType: musthave
+      objectDefinition:
+        apiVersion: policies.ibm.com/v1alpha1
+        kind: TrustedNodePolicy
+        metadata:
+          name: example-trustednodepolicy
+        spec:
+          severity: low
+          namespaceSelector:
+            include: ["default"]
+          remediationAction: inform
+---
+apiVersion: mcm.ibm.com/v1alpha1
+kind: PlacementBinding
+metadata:
+  name: binding-trustednode
+  namespace: default
+placementRef:
+  apiGroup: apps.open-cluster-management.io
+  kind: PlacementRule
+  name: placement-policy-trustedcontainer
+subjects:
+- apiGroup: policy.mcm.ibm.com
+  kind: Policy
+  name: policy-trustednode

@@ -21,8 +21,8 @@ spec:
           - trusted-node-policy-controller
           imagePullPolicy: Always
           env:
-            - name: WATCH_NAMESPACE
-              value: default
+            - name: OPERATOR_NAME
+              value: "trusted-node-policy-controller"
             - name: POD_NAME
               valueFrom:
                 fieldRef:
