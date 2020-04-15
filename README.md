@@ -22,7 +22,7 @@ kubectl apply -f deploy/crds/policies.ibm.com_samplepolicies_cr.yaml
 1. Repeat step 1 to 4 on the managed cluster. Make sure you deploy them to cluster namespace. The namespace name is usually your cluster name
 2. Run following command to create a MCM policy on hub cluster
 ```
-kubectl apply -f deploy/crds/mcm-trustednodepolicy.yaml
+kubectl -n <namespace> apply -f deploy/crds/mcm-trustednodepolicy.yaml
 ```
 3. Run step 6 on managed cluster to generate a violation
 4. Then you should be able to see the policy and violation status on MCM console
