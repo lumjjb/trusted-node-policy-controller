@@ -34,8 +34,20 @@ metadata:
 placementRef:
   apiGroup: apps.open-cluster-management.io
   kind: PlacementRule
-  name: placement-policy-trustedcontainer
+  name: placement-policy-trustednode
 subjects:
 - apiGroup: policy.mcm.ibm.com
   kind: Policy
   name: policy-trustednode
+---
+apiVersion: apps.open-cluster-management.io/v1
+kind: PlacementRule
+metadata:
+  name: placement-policy-trustednode
+  namespace: default
+spec:
+  clusterConditions:
+  - type: OK
+  clusterSelector:
+    matchExpressions:
+      []
