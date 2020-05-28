@@ -46,8 +46,9 @@ metadata:
   name: placement-policy-trustednode
   namespace: default
 spec:
-  clusterConditions:
-  - type: OK
-  clusterSelector:
+  clusterLabels:
     matchExpressions:
-      []
+      - key: name
+        operator: In
+        values:
+          - iseclcluster
